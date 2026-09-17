@@ -1,6 +1,6 @@
 fastapi
-uvicorn
+uvicorn[standard]
+yfinance
 pandas
 numpy
-yfinance
 scikit-learn
