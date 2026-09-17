@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="it"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Market AI V3</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f5f6f8;color:#17191c;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",system-ui,sans-serif}
+main{max-width:940px;margin:auto;padding:22px 15px 45px}.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}h1{margin:0;font-size:30px}.muted{color:#747981;font-size:13px}
+.box{background:#fff;border:1px solid #e1e4e8;border-radius:18px;padding:16px;margin:12px 0;box-shadow:0 4px 16px #00000008}
+.controls{display:flex;gap:8px}.controls input{min-width:0;flex:1;padding:13px;border:1px solid #cbd0d6;border-radius:12px;font-size:17px;text-transform:uppercase}.controls button{border:0;border-radius:12px;padding:0 18px;background:#17191c;color:#fff;font-weight:650;font-size:16px}
+.tabs{display:flex;gap:7px;margin-top:12px}.tabs button{border:1px solid #d8dce1;background:#f5f6f8;padding:8px 12px;border-radius:10px}.tabs .active{background:#17191c;color:white}
+.hero{display:grid;grid-template-columns:1.4fr 1fr;gap:14px}.price{font-size:38px;font-weight:780;margin:3px 0}.signal{font-weight:750;padding:9px 12px;border-radius:999px;display:inline-block;background:#eef0f2}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.metric{background:#f7f8fa;border-radius:13px;padding:13px}.metric span{color:#747981;font-size:12px}.metric b{display:block;font-size:19px;margin-top:4px}
+.chart{height:250px;position:relative;display:flex;align-items:end;gap:2px;padding:15px 2px 3px;border-bottom:1px solid #ddd}.bar{flex:1;min-width:2px;border-radius:3px 3px 0 0;background:#222;opacity:.8}.line{position:absolute;left:0;right:0;top:0;height:100%;pointer-events:none}
+.probs{display:grid;grid-template-columns:1fr 1fr;gap:10px}.prob{padding:16px;background:#f7f8fa;border-radius:13px}.num{font-size:29px;font-weight:780;margin-top:3px}
+.error{padding:12px;background:#fff0f0;border-radius:12px;color:#9b2226}.hide{display:none}.foot{font-size:12px;color:#747981;line-height:1.5}
+@media(max-width:650px){.hero{grid-template-columns:1fr}.grid{grid-template-columns:repeat(2,1fr)}}
+</style></head>
+<body><main>
+<div class="top"><div><h1>Market AI</h1><div class="muted">V3 · probabilità e trend</div></div><div class="muted">BETA</div></div>
+<div class="box">
+<div class="controls"><input id="ticker" value="NVDA"><button onclick="run()">Analizza</button></div>
+<div class="tabs"><button class="active" data-h="1" onclick="setH(1)">1 giorno</button><button data-h="3" onclick="setH(3)">3 giorni</button><button data-h="7" onclick="setH(7)">7 giorni</button></div>
+<div id="status" class="muted" style="margin-top:10px">Inserisci un ticker.</div>
+</div>
+<div id="error" class="error hide"></div>
+<section id="result" class="hide">
+<div class="box hero"><div><div class="muted" id="title"></div><div class="price" id="price"></div><div class="muted" id="date"></div></div>
+<div><div class="muted">Indicazione modello</div><div class="signal" id="signal"></div><div class="muted" style="margin-top:9px">Non è una garanzia di movimento futuro.</div></div></div>
+<div class="box"><b>Prezzo e SMA 50</b><div class="chart" id="chart"></div></div>
+<div class="box"><b>Indicatori</b><div class="grid" id="metrics" style="margin-top:10px"></div></div>
+<div class="box"><b id="hlabel">Stima prossima seduta</b><div class="probs" style="margin-top:10px"><div class="prob"><div class="muted">Rialzo</div><div class="num" id="up"></div></div><div class="prob"><div class="muted">Ribasso</div><div class="num" id="down"></div></div></div><div class="muted" style="margin-top:10px">Probabilità prodotte dal modello, non probabilità certe del mercato.</div></div>
+<div class="box"><b>Test storico</b><div class="grid" style="margin-top:10px"><div class="metric"><span>Accuracy out-of-sample</span><b id="acc"></b></div><div class="metric"><span>Orizzonte</span><b id="hz"></b></div><div class="metric"><span>Prezzo/SMA50</span><b id="dist"></b></div></div></div>
+<div class="box foot">Il sistema usa dati storici e un Random Forest con indicatori tecnici. Il test è cronologico e separa il periodo finale dai dati di addestramento. Un buon risultato storico non implica risultati futuri. Non usare questa dashboard come unico criterio per investire denaro reale.</div>
+</section>
+</main>
+<script>
+let horizon=1;
+const $=x=>document.getElementById(x);
+function setH(h){horizon=h;document.querySelectorAll(".tabs button").forEach(b=>b.classList.toggle("active",+b.dataset.h===h));}
+function money(x){return new Intl.NumberFormat("it-IT",{style:"currency",currency:"USD"}).format(x)}
+function pct(x){return (x*100).toFixed(1)+"%"}
+function run(){let t=$("ticker").value.trim().toUpperCase();if(!t)return;$("error").classList.add("hide");$("result").classList.add("hide");$("status").textContent="Analisi in corso…";
+fetch(`/api/forecast/${encodeURIComponent(t)}?horizon=${horizon}`).then(async r=>{let d=await r.json();if(!r.ok)throw Error(d.detail||"Errore");return d}).then(d=>{
+$("status").textContent="Analisi completata."; $("result").classList.remove("hide");$("title").textContent=d.ticker;$("price").textContent=money(d.price);$("date").textContent="Ultimo dato: "+new Date(d.date).toLocaleDateString("it-IT");$("signal").textContent=d.signal;
+$("hlabel").textContent=`Stima ${d.horizon_days} ${d.horizon_days===1?"giorno":"giorni"}`;$("up").textContent=pct(d.up);$("down").textContent=pct(d.down);$("acc").textContent=pct(d.test_accuracy);$("hz").textContent=d.horizon_days+" g";$("dist").textContent=pct(d.price_vs_sma50);
+let m=[["SMA 20",money(d.sma20)],["SMA 50",money(d.sma50)],["SMA 200",money(d.sma200)],["RSI 14",d.rsi14.toFixed(1)],["Volatilità 20g",pct(d.vol20)],["Prezzo/SMA50",pct(d.price_vs_sma50)]];
+$("metrics").innerHTML=m.map(x=>`<div class="metric"><span>${x[0]}</span><b>${x[1]}</b></div>`).join("");
+let a=d.points.map(x=>x.close),mn=Math.min(...a),mx=Math.max(...a),rg=mx-mn||1;$("chart").innerHTML=d.points.map(x=>`<div class="bar" title="${x.date} ${money(x.close)}" style="height:${12+(x.close-mn)/rg*86}%"></div>`).join("");
+}).catch(e=>{$("status").textContent="";$("error").textContent=e.message;$("error").classList.remove("hide")})}
+$("ticker").addEventListener("keydown",e=>{if(e.key==="Enter")run()});run();
+</script></body></html>
