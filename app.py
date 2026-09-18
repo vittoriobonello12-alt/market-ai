@@ -1,3 +1,4 @@
+import os
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 import yfinance as yf
@@ -137,16 +138,11 @@ def technical(ticker,horizon):
 
 @app.get("/",response_class=HTMLResponse)
 def home():
-    from pathlib import Path
-
-BASE_DIR = Path(__file__).resolve().parent
-
-@app.get("/",response_class=HTMLResponse)
-def home():
-    index_path = BASE_DIR / "index.html"
-    if not index_path.is_file():
-        raise HTTPException(500, f"index.html non trovato in {BASE_DIR}")
-    return index_path.read_text(encoding="utf-8")
+    index_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "index.html")
+    if not os.path.isfile(index_path):
+        raise HTTPException(500, f"index.html non trovato in {os.path.dirname(os.path.abspath(__file__))}")
+    with open(index_path, "r", encoding="utf-8") as f:
+        return f.read()
 
 @app.get("/health")
 def health(): return {"ok":True}
