@@ -137,7 +137,16 @@ def technical(ticker,horizon):
 
 @app.get("/",response_class=HTMLResponse)
 def home():
-    return open("/app/index.html","r",encoding="utf-8").read()
+    from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+
+@app.get("/",response_class=HTMLResponse)
+def home():
+    index_path = BASE_DIR / "index.html"
+    if not index_path.is_file():
+        raise HTTPException(500, f"index.html non trovato in {BASE_DIR}")
+    return index_path.read_text(encoding="utf-8")
 
 @app.get("/health")
 def health(): return {"ok":True}
