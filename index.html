@@ -1,57 +1,238 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Market AI V6</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#eef3ff;background:radial-gradient(circle at top,#102a52 0,#05070d 48%,#020308 100%);min-height:100vh}
-.wrap{max-width:1050px;margin:auto;padding:28px 16px 50px}.hero{text-align:center;padding:25px 0}.hero h1{font-size:38px;margin:0 0 8px}.hero p{color:#aab8d4;margin:0}
-.search{display:flex;gap:8px;max-width:720px;margin:25px auto 12px}.search input{flex:1;background:#0d1423;border:1px solid #263753;border-radius:14px;padding:15px;color:white;font-size:17px}.search button,.quick button{border:0;border-radius:12px;padding:12px 15px;background:#173b70;color:white;font-weight:700}
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#eef3ff;background:radial-gradient(circle at top,#102a52 0,#05070d 48%,#020308 100%);min-height:100vh}
+.wrap{max-width:1100px;margin:auto;padding:28px 16px 50px}
+.hero{text-align:center;padding:25px 0}.hero h1{font-size:38px;margin:0 0 8px}.hero p{color:#aab8d4;margin:0}
+.search{display:flex;gap:8px;max-width:720px;margin:25px auto 12px}
+.search input{flex:1;background:#0d1423;border:1px solid #263753;border-radius:14px;padding:15px;color:white;font-size:17px}
+.search button,.quick button{border:0;border-radius:12px;padding:12px 15px;background:#173b70;color:white;font-weight:700}
 .quick{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin-bottom:20px}.quick button{background:#0d1729;border:1px solid #263753;font-weight:600}
-.tabs{display:flex;justify-content:center;gap:8px;margin:15px}.tabs button{padding:9px 18px;border-radius:20px;border:1px solid #2a3d5c;background:#0b1220;color:#cbd7eb}.tabs .on{background:#1c4c8f;color:white}
-.card{background:rgba(8,14,26,.84);border:1px solid #213452;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 15px 40px #0005}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.metric{font-size:30px;font-weight:800}.muted{color:#91a0bb;font-size:13px}.bar{height:9px;background:#162238;border-radius:10px;overflow:hidden;margin-top:8px}.fill{height:100%;background:linear-gradient(90deg,#377bd9,#71b7ff);border-radius:10px}.news{border-top:1px solid #1e2d45;padding:14px 0}.tag{display:inline-block;padding:4px 8px;border-radius:8px;background:#14233b;font-size:11px;margin-right:5px}.score{font-weight:800}.reason{color:#aebbd0;font-size:13px;margin-top:7px}.warn{color:#f2c777}.center{text-align:center}.hidden{display:none}@media(max-width:700px){.grid{grid-template-columns:1fr}.search{flex-direction:column}}
-
-.chartbox{height:310px;overflow-x:auto;overflow-y:hidden;border:1px solid #1e2e49;border-radius:14px;padding:10px;background:#050b15}
-.chartbox canvas{min-width:820px;width:100%;height:285px}
-.chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.chart-controls button{padding:8px 12px;border-radius:10px;border:1px solid #2a3d5c;background:#0b1220;color:#cbd7eb}.chart-controls button.on{background:#173b70;color:#fff}
-.section-title{font-size:26px;margin:30px 0 8px}.section-sub{color:#91a0bb;margin:0 0 15px}
-
+.tabs{display:flex;justify-content:center;gap:8px;flex-wrap:wrap;margin:15px}.tabs button,.chart-controls button{padding:9px 14px;border-radius:20px;border:1px solid #2a3d5c;background:#0b1220;color:#cbd7eb}.tabs .on,.chart-controls .on{background:#173b70;color:#fff}
+.card{background:rgba(8,14,26,.84);border:1px solid #213452;border-radius:18px;padding:18px;margin:14px 0;box-shadow:0 15px 40px #0005}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.grid.two{grid-template-columns:repeat(2,1fr)}
+.metric{font-size:30px;font-weight:800}.muted{color:#91a0bb;font-size:13px}
+.bar{height:9px;background:#162238;border-radius:10px;overflow:hidden;margin-top:8px}.fill{height:100%;background:linear-gradient(90deg,#377bd9,#71b7ff);border-radius:10px}
+.probbar{height:14px;background:#162238;border-radius:10px;overflow:hidden;display:flex;margin:12px 0}.upfill{background:#377bd9}.downfill{background:#9a5870}
+.news{border-top:1px solid #1e2d45;padding:14px 0}.tag{display:inline-block;padding:4px 8px;border-radius:8px;background:#14233b;font-size:11px;margin-right:5px}.reason{color:#aebbd0;font-size:13px;margin-top:7px}
+.warn{color:#f2c777}.center{text-align:center}.section-title{font-size:26px;margin:30px 0 8px}.section-sub{color:#91a0bb;margin:0 0 15px}
+.chartbox{height:340px;overflow-x:auto;overflow-y:hidden;border:1px solid #1e2e49;border-radius:14px;padding:10px;background:#050b15}
+.chartbox canvas{display:block;min-width:820px;width:100%;height:300px}
+.chart-controls{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.status{color:#91a0bb;font-size:13px;margin-top:8px}
+@media(max-width:700px){.grid,.grid.two{grid-template-columns:1fr}.search{flex-direction:column}.hero h1{font-size:32px}}
 </style>
 </head>
-<body><div class="wrap">
-<div class="hero"><h1>Market AI V6</h1><p>Analisi tecnica + analisi approfondita delle notizie + macro/geopolitica</p></div>
-<div class="search"><input id="ticker" value="KO" placeholder="Ticker, es. KO, AAPL, NVDA"><button onclick="run()">ANALIZZA</button></div>
-<div class="quick" id="quick"></div>
-<div class="tabs">
-<button onclick="setH(1)" id="h1">1G</button><button onclick="setH(3)" id="h3" class="on">3G</button>
-<button onclick="setH(7)" id="h7">7G</button><button onclick="setH(14)" id="h14">14G</button>
-<button onclick="setH(30)" id="h30">30G</button><button onclick="setH(60)" id="h60">60G</button>
-<button onclick="setH(90)" id="h90">90G</button></div>
-<div id="out" class="card center">Inserisci un titolo e avvia l'analisi.</div>
+<body>
+<div class="wrap">
+  <div class="hero">
+    <h1>Market AI V6</h1>
+    <p>Analisi tecnica + notizie + macro/geopolitica</p>
+  </div>
+
+  <div class="search">
+    <input id="ticker" value="KO" placeholder="Ticker, es. KO, AAPL, NVDA">
+    <button onclick="run()">ANALIZZA</button>
+  </div>
+  <div class="quick" id="quick"></div>
+
+  <div class="tabs">
+    <button onclick="setH(1)" id="h1">1G</button>
+    <button onclick="setH(3)" id="h3" class="on">3G</button>
+    <button onclick="setH(7)" id="h7">7G</button>
+  </div>
+
+  <div id="out" class="card center">Inserisci un titolo e avvia l'analisi.</div>
+
+  <section>
+    <h2 class="section-title">Grafico storico</h2>
+    <p class="section-sub">Prezzo e medie mobili calcolati sui dati disponibili.</p>
+    <div class="card">
+      <div class="chart-controls">
+        <button class="on" onclick="setChartMode('close',this)">Prezzo</button>
+        <button onclick="setChartMode('sma20',this)">SMA 20</button>
+        <button onclick="setChartMode('sma50',this)">SMA 50</button>
+        <button onclick="setChartMode('all',this)">Tutti</button>
+      </div>
+      <div class="chartbox"><canvas id="chart"></canvas></div>
+      <div id="chartStatus" class="status">Il grafico verrà caricato dopo l'analisi.</div>
+    </div>
+  </section>
 </div>
+
 <script>
 let H=3;
+let chartRows=[];
+let chartMode="close";
 const qs=["NVDA","AAPL","MSFT","AMZN","GOOGL","TSLA","META","AVGO","KO","PG","PEP","MCD"];
-document.getElementById("quick").innerHTML=qs.map(x=>`<button onclick="ticker.value='${x}';run()">${x}</button>`).join("");
-function setH(x){H=x;document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("on"));document.getElementById("h"+x).classList.add("on")}
-function pct(x){return Math.round(x*100)}
-async function run(){
- const t=document.getElementById("ticker").value.trim().toUpperCase(); if(!t)return;
- const o=document.getElementById("out");o.innerHTML="<div>Analisi in corso…</div>";
- try{
-  const r=await fetch(`/analyze?ticker=${encodeURIComponent(t)}&horizon=${H}`);
-  const d=await r.json(); if(!r.ok)throw Error(d.detail||"Errore");
-  o.className="card";
-  let news=d.news.map(n=>`<div class="news"><div><span class="tag">${n.direction}</span><span class="tag">Rilevanza ${n.relevance}/100</span><span class="tag">Impatto ${n.impact}/100</span></div><div style="margin-top:7px;font-weight:700">${n.title}</div><div class="muted">${n.source||""}</div><div class="reason">${n.reason}</div></div>`).join("");
-  o.innerHTML=`<div class="grid">
-  <div><div class="muted">Probabilità modello rialzo</div><div class="metric">${pct(d.prob_up)}%</div></div>
-  <div><div class="muted">Segnale</div><div class="metric">${d.signal}</div></div>
-  <div><div class="muted">Influenza esterna</div><div class="metric">${d.external_impact}/100</div><div class="muted">${d.external_label}</div></div>
-  </div>
-  <div class="card"><b>Influenza esterna</b><div class="bar"><div class="fill" style="width:${d.external_impact}%"></div></div><p class="muted">Indice separato dalla probabilità: misura quanto le notizie esterne risultano rilevanti e potenzialmente influenti per questo titolo.</p></div>
-  <div class="grid"><div><div class="muted">Fattore tecnico</div><div class="metric">${d.technical_factor>0?"+":""}${d.technical_factor}</div></div><div><div class="muted">News</div><div class="metric">${d.news_factor>0?"+":""}${d.news_factor}</div></div><div><div class="muted">Macro/geopolitica</div><div class="metric">${d.macro_factor>0?"+":""}${d.macro_factor}</div></div></div>
-  <div class="card"><b>Notizie analizzate singolarmente</b>${news||"<p class='muted'>Nessuna notizia disponibile.</p>"}</div>
-  <p class="warn">${d.note}</p>`;
- }catch(e){o.innerHTML=`<b>Errore</b><p class="muted">${e.message}</p>`}
+
+document.getElementById("quick").innerHTML=qs.map(x=>`<button onclick="document.getElementById('ticker').value='${x}';run()">${x}</button>`).join("");
+
+function setH(x){
+  H=x;
+  document.querySelectorAll(".tabs button").forEach(b=>b.classList.remove("on"));
+  document.getElementById("h"+x).classList.add("on");
+  if(document.getElementById("ticker").value.trim()) run();
 }
-</script></body></html>
+function pct(x){return Math.round(Number(x)*100)}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+
+async function run(){
+  const t=document.getElementById("ticker").value.trim().toUpperCase();
+  if(!t)return;
+  const o=document.getElementById("out");
+  o.className="card center";
+  o.innerHTML="<div>Analisi in corso…</div>";
+  document.getElementById("chartStatus").textContent="Caricamento grafico…";
+  try{
+    const [ar,cr]=await Promise.all([
+      fetch(`/analyze?ticker=${encodeURIComponent(t)}&horizon=${H}`),
+      fetch(`/chart?ticker=${encodeURIComponent(t)}`)
+    ]);
+    const d=await ar.json();
+    const c=await cr.json();
+    if(!ar.ok)throw Error(d.detail||"Errore analisi");
+    if(!cr.ok)throw Error(c.detail||"Errore grafico");
+
+    chartRows=c.rows||[];
+    drawChart();
+
+    const up=pct(d.prob_up), down=pct(d.prob_down);
+    let news=(d.news||[]).map(n=>`
+      <div class="news">
+        <div>
+          <span class="tag">${esc(n.direction)}</span>
+          <span class="tag">Rilevanza ${esc(n.relevance)}/100</span>
+          <span class="tag">Impatto ${esc(n.impact)}/100</span>
+        </div>
+        <div style="margin-top:7px;font-weight:700">${esc(n.title)}</div>
+        <div class="muted">${esc(n.source||"")}</div>
+        <div class="reason">${esc(n.reason)}</div>
+      </div>`).join("");
+
+    o.className="card";
+    o.innerHTML=`
+      <div class="grid">
+        <div><div class="muted">Probabilità di rialzo</div><div class="metric">${up}%</div></div>
+        <div><div class="muted">Probabilità di ribasso</div><div class="metric">${down}%</div></div>
+        <div><div class="muted">Segnale</div><div class="metric">${esc(d.signal)}</div></div>
+      </div>
+
+      <div class="probbar" title="Probabilità modello">
+        <div class="upfill" style="width:${up}%"></div>
+        <div class="downfill" style="width:${down}%"></div>
+      </div>
+      <div class="muted">Orizzonte modello: ${H} giorno/i</div>
+
+      <div class="card">
+        <b>Influenza esterna</b>
+        <div class="bar"><div class="fill" style="width:${Number(d.external_impact)||0}%"></div></div>
+        <p class="muted">${Number(d.external_impact)||0}/100 — ${esc(d.external_label||"")}</p>
+        <p class="muted">Misura separatamente quanto le notizie esterne risultano rilevanti e potenzialmente influenti sul titolo.</p>
+      </div>
+
+      <div class="grid">
+        <div><div class="muted">Fattore tecnico</div><div class="metric">${Number(d.technical_factor)>0?"+":""}${esc(d.technical_factor)}</div></div>
+        <div><div class="muted">News</div><div class="metric">${Number(d.news_factor)>0?"+":""}${esc(d.news_factor)}</div></div>
+        <div><div class="muted">Macro/geopolitica</div><div class="metric">${Number(d.macro_factor)>0?"+":""}${esc(d.macro_factor)}</div></div>
+      </div>
+
+      <div class="grid two">
+        <div><div class="muted">Prezzo</div><div class="metric">${esc(d.price)}</div></div>
+        <div><div class="muted">RSI</div><div class="metric">${esc(d.rsi)}</div></div>
+      </div>
+
+      <div class="card">
+        <b>Notizie analizzate singolarmente</b>
+        ${news||"<p class='muted'>Nessuna notizia disponibile.</p>"}
+      </div>
+      <p class="warn">${esc(d.note)}</p>`;
+    document.getElementById("chartStatus").textContent=`${t}: ${chartRows.length} osservazioni storiche disponibili.`;
+  }catch(e){
+    o.className="card center";
+    o.innerHTML=`<b>Errore</b><p class="muted">${esc(e.message)}</p>`;
+    document.getElementById("chartStatus").textContent="Grafico non disponibile.";
+  }
+}
+
+function setChartMode(mode,btn){
+  chartMode=mode;
+  document.querySelectorAll(".chart-controls button").forEach(b=>b.classList.remove("on"));
+  btn.classList.add("on");
+  drawChart();
+}
+
+function drawChart(){
+  const canvas=document.getElementById("chart");
+  const box=canvas.parentElement;
+  const cssWidth=Math.max(820,box.clientWidth-20);
+  const cssHeight=300;
+  const dpr=window.devicePixelRatio||1;
+  canvas.style.width=cssWidth+"px";
+  canvas.style.height=cssHeight+"px";
+  canvas.width=Math.round(cssWidth*dpr);
+  canvas.height=Math.round(cssHeight*dpr);
+  const ctx=canvas.getContext("2d");
+  ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cssWidth,cssHeight);
+  if(!chartRows.length)return;
+
+  const series=[];
+  if(chartMode==="close"||chartMode==="all")series.push(["Prezzo","close"]);
+  if(chartMode==="sma20"||chartMode==="all")series.push(["SMA 20","sma20"]);
+  if(chartMode==="sma50"||chartMode==="all")series.push(["SMA 50","sma50"]);
+
+  const vals=series.flatMap(([,k])=>chartRows.map(r=>Number(r[k])).filter(Number.isFinite));
+  if(!vals.length)return;
+  let min=Math.min(...vals),max=Math.max(...vals);
+  const pad=(max-min)*.08||1; min-=pad; max+=pad;
+  const L=52,R=18,T=18,B=34,W=cssWidth,Ht=cssHeight;
+  const x=i=>L+i*(W-L-R)/Math.max(1,chartRows.length-1);
+  const y=v=>T+(max-v)*(Ht-T-B)/(max-min);
+
+  ctx.strokeStyle="rgba(145,160,187,.18)";
+  ctx.lineWidth=1;
+  for(let i=0;i<5;i++){
+    const yy=T+i*(Ht-T-B)/4;
+    ctx.beginPath();ctx.moveTo(L,yy);ctx.lineTo(W-R,yy);ctx.stroke();
+    const value=max-i*(max-min)/4;
+    ctx.fillStyle="#91a0bb";ctx.font="11px sans-serif";ctx.fillText(value.toFixed(2),5,yy+4);
+  }
+
+  const widths=chartRows.length;
+  [0,Math.floor(widths/2),widths-1].forEach(i=>{
+    ctx.fillStyle="#91a0bb";ctx.font="11px sans-serif";
+    ctx.fillText(chartRows[i].date,x(i)-20,Ht-10);
+  });
+
+  const lineColors=["#71b7ff","#6aa06a","#c99a55"];
+  series.forEach(([,key],si)=>{
+    ctx.strokeStyle=lineColors[si%lineColors.length];
+    ctx.lineWidth=2;
+    ctx.beginPath();
+    let started=false;
+    chartRows.forEach((r,i)=>{
+      const v=Number(r[key]); if(!Number.isFinite(v))return;
+      const xx=x(i),yy=y(v);
+      if(!started){ctx.moveTo(xx,yy);started=true}else ctx.lineTo(xx,yy);
+    });
+    ctx.stroke();
+  });
+
+  let lx=L;
+  series.forEach((s,i)=>{
+    ctx.fillStyle=lineColors[i%lineColors.length];
+    ctx.fillRect(lx,8,12,3);
+    ctx.fillStyle="#cbd7eb";ctx.font="11px sans-serif";ctx.fillText(s[0],lx+17,12);
+    lx+=75;
+  });
+}
+window.addEventListener("resize",()=>drawChart());
+</script>
+</body>
+</html>
